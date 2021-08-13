@@ -72,3 +72,6 @@ DerivedDataCache/*
 
 # OSX generated
 .DS_Store
+
+# 
+Binaries/*
