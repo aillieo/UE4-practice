@@ -47,8 +47,12 @@ protected:
 	FRotator OriginalOrientation;
 	FTimerHandle TimerHandle_ResetOrientation;
 	void ResetOrientation();
-    
+
+    UPROPERTY(ReplicatedUsing=OnRep_GuardState)
     EGuardState GuardState;
+    UFUNCTION()
+    void OnRep_GuardState();
+
     void SetGuardState(EGuardState NewState);
 
     UFUNCTION(BlueprintImplementableEvent, Category = "AI")

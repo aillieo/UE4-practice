@@ -8,6 +8,7 @@
 #include "FPSCharacter.h"
 #include "FPSGameMode.h"
 #include "Engine/World.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
@@ -100,5 +101,16 @@ void AFPSAIGuard::SetGuardState(EGuardState NewState)
     }
     
     GuardState = NewState;
+    OnRep_GuardState();
+}
+
+void AFPSAIGuard::OnRep_GuardState() {
     OnGuardStateChanged(GuardState);
+}
+
+void AFPSAIGuard::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AFPSAIGuard, GuardState);
 }
