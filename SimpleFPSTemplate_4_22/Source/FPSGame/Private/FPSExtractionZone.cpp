@@ -53,6 +53,7 @@ void AFPSExtractionZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent,
 	{
 		if (fpcChar->bIsCarryingObjective)
 		{
+			// GM: only for server
 			AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
 			if (GM != nullptr)
 			{

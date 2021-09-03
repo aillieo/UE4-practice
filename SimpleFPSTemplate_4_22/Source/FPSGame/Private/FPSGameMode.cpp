@@ -5,6 +5,9 @@
 #include "FPSCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "FPSGameState.h"
+#include "Engine/World.h"
+#include "FPSPlayerController.h"
 
 AFPSGameMode::AFPSGameMode()
 {
@@ -14,13 +17,15 @@ AFPSGameMode::AFPSGameMode()
 
 	// use our custom HUD class
 	HUDClass = AFPSHUD::StaticClass();
+
+    GameStateClass = AFPSGameState::StaticClass();
 }
 
 void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess)
 {
 	if(InstigatorPawn)
 	{
-		InstigatorPawn->DisableInput(nullptr);
+		//InstigatorPawn->DisableInput(nullptr);
 
         if (SpectatingViewpointClass)
         {
@@ -31,10 +36,17 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess)
             {
                 AActor* NewViewTarget = ReturnedActors[0];
                 
-                APlayerController* PC = Cast<APlayerController>(InstigatorPawn->GetController());
-                if (PC)
+
+                // all PlayerControllers
+				FConstPlayerControllerIterator PIt = GetWorld()->GetPlayerControllerIterator();
+                for (; PIt; PIt++)
                 {
-                    PC->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+					APlayerController* PlayerController = PIt->Get();
+					AFPSPlayerController* FPSPlayerController = Cast<AFPSPlayerController>(PlayerController);
+                    if (FPSPlayerController)
+                    {
+                        FPSPlayerController->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+                    }
                 }
             }
         }
@@ -44,5 +56,11 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess)
         }
     }
 
-	OnMissionCompleted(InstigatorPawn, bMissionSuccess);
+    AFPSGameState* GS = GetGameState<AFPSGameState>();
+    if (GS)
+    {
+        GS->MulticastOnMissionCompleted(InstigatorPawn, bMissionSuccess);
+    }
+
+	//OnMissionCompleted(InstigatorPawn, bMissionSuccess);
 }
