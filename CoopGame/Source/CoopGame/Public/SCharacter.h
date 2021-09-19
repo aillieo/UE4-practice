@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
 
+	void BeginCrouch();
+	void EndCrouch();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
