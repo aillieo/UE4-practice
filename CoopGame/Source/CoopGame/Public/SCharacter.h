@@ -35,6 +35,17 @@ protected:
 	void BeginCrouch();
 	void EndCrouch();
 
+
+	bool bWantsToZoom;
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float ZoomedFOV;
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float DefaultFOV;
+	void BeginZoom();
+	void EndZoom();
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.0, ClampMax = 100))
+	float ZoomInterpSpeed;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
