@@ -98,6 +98,24 @@ void ASWeapon::PlayFireEffects(FVector TracerEndPoint)
 		TracerComp->SetVectorParameter(TracerTargetName, TracerEndPoint);
 	}
 
+	// camera shake
+	AActor* MyOwner = GetOwner();
+	if (MyOwner)
+	{
+		APawn* OwnerPawn = Cast<APawn>(MyOwner);
+		if (OwnerPawn)
+		{
+			APlayerController* PC = Cast<APlayerController>(OwnerPawn->GetController());
+			if (PC)
+			{
+				if (FireCameraShake != nullptr)
+				{
+					PC->ClientPlayCameraShake(FireCameraShake);
+				}
+			}
+		}
+	}
+
 }
 
 // Called every frame

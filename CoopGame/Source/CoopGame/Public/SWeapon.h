@@ -49,6 +49,9 @@ protected:
 
 	void PlayFireEffects(FVector TracerEndPoint);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UCameraShake> FireCameraShake;
+
 public:	
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
