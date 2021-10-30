@@ -8,6 +8,8 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SceneComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "CoopGame.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef ACVRDebugWeaponDrawing(
@@ -57,21 +59,42 @@ void ASWeapon::Fire()
 		QueryParams.AddIgnoredActor(MyOwner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true; // true : every triangle   false : simplified bounding boxes
+		QueryParams.bReturnPhysicalMaterial = true;
 
 		FVector TracerEndPoint = TraceEnd;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
 			// Hit
 			TracerEndPoint = Hit.Location;
 			AActor* HitActor = Hit.GetActor();
 			UGameplayStatics::ApplyPointDamage(HitActor, 1, ShootDir, Hit, GetOwner()->GetInstigatorController(), this, DamageType);
 
-			if (ImpactEffect != nullptr)
+			//if (ImpactEffectDefault != nullptr)
+			//{
+			//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffectDefault, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+			//}
+
+			UParticleSystem* ImpactEffectSelected = nullptr;
+			//
+			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+			switch (surfaceType)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+			case SURFACE_FLESHDEFAULT:
+			case SURFACE_FLESHVULNERABLE:
+				ImpactEffectSelected = ImpactEffectFlesh;
+				break;
+			default:
+				ImpactEffectSelected = ImpactEffectDefault;
+				break;
 			}
+
+			if (ImpactEffectSelected != nullptr)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffectSelected, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+			}
+
 		}
 
 		if (DebugWeaponDrawing > 0)
