@@ -55,11 +55,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UCameraShake> FireCameraShake;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float BaseDamage;
+
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+	float LastFireTime;
+
+	// shot per MINUTE
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float RateOfFire;
+
 public:	
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	//UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
+
+	void StartFire();
+	void StopFire();
 
 };

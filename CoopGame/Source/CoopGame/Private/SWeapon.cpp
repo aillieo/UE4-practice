@@ -10,6 +10,7 @@
 #include "Components/SceneComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "CoopGame.h"
+#include "TimerManager.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef ACVRDebugWeaponDrawing(
@@ -32,6 +33,9 @@ ASWeapon::ASWeapon()
 
 	MuzzleSocketName = "MuzzleFlashSocket";
 	TracerTargetName = "BeamEnd";
+
+	BaseDamage = 20.0f;
+	RateOfFire = 120.0f;
 }
 
 // Called when the game starts or when spawned
@@ -69,7 +73,16 @@ void ASWeapon::Fire()
 			// Hit
 			TracerEndPoint = Hit.Location;
 			AActor* HitActor = Hit.GetActor();
-			UGameplayStatics::ApplyPointDamage(HitActor, 1, ShootDir, Hit, GetOwner()->GetInstigatorController(), this, DamageType);
+
+			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+			float ActualDamage = BaseDamage;
+			if (surfaceType == SURFACE_FLESHVULNERABLE)
+			{
+				ActualDamage *= 4;
+			}
+
+			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShootDir, Hit, GetOwner()->GetInstigatorController(), this, DamageType);
 
 			//if (ImpactEffectDefault != nullptr)
 			//{
@@ -78,7 +91,6 @@ void ASWeapon::Fire()
 
 			UParticleSystem* ImpactEffectSelected = nullptr;
 			//
-			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 			switch (surfaceType)
 			{
 			case SURFACE_FLESHDEFAULT:
@@ -103,7 +115,22 @@ void ASWeapon::Fire()
         }
 
 		PlayFireEffects(TracerEndPoint);
+
+		LastFireTime = GetWorld()->TimeSeconds;
 	}
+}
+
+void ASWeapon::StartFire()
+{
+	float TimeBetweenShots = 60.0f / RateOfFire;
+	float FirstDelay = LastFireTime + TimeBetweenShots - GetWorld()->GetTimeSeconds();
+	FirstDelay = FMath::Max(FirstDelay, 0.0f);
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, FirstDelay);
+}
+
+void ASWeapon::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
 void ASWeapon::PlayFireEffects(FVector TracerEndPoint)
