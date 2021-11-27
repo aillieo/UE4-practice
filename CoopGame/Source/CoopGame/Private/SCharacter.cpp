@@ -8,6 +8,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "SWeapon.h"
 #include <Runtime/Engine/Classes/Engine/World.h>
+#include "Components/CapsuleComponent.h"
+#include "CoopGame.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -40,6 +42,8 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
 	bWantsToZoom = false;
 	CameraComp->SetFieldOfView(DefaultFOV);
