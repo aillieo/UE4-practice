@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ASWeapon;
+class USHealthComponent;
 
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
@@ -59,6 +60,13 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Player")
 	FName WeaponSocketName;
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* HealthComp;
+
+	UPROPERTY(BlueprintReadOnly, Category="Player")
+	bool Dead;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -68,4 +76,7 @@ public:
 
 	// override APawn
 	virtual FVector GetPawnViewLocation() const override;
+
+	UFUNCTION()
+	void OnHealthChanged(USHealthComponent* HealthComp0, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 };
